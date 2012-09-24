@@ -22,7 +22,7 @@ module Sidekiq::Status::Storage
   private
 
   def update_timestamps!
-    SidekiqJob.find(@id).update_at(Time.now)
+    SidekiqJob.find(@id).set(:updated_at, Time.now)
   end
 
 end
