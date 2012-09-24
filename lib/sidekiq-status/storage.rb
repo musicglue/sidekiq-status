@@ -7,14 +7,22 @@ module Sidekiq::Status::Storage
 
   def update_message!(message)
     SidekiqJob.find(@id).set(:message, message)
+    update_timestamps!
   end
 
   def update_status!(status)
     SidekiqJob.find(@id).set(:status, status)
+    update_timestamps!
   end
 
   def job_document(uuid)
     SidekiqJob.find(uuid)
+  end
+
+  private
+
+  def update_timestamps!
+    SidekiqJob.find(@id).update_at(Time.now)
   end
 
 end
