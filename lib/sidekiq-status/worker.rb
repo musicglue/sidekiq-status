@@ -17,8 +17,12 @@ module Sidekiq::Status::Worker
     def perform_async_with_uuid(*args)
       id = SecureRandom.uuid
       args.unshift id
+      document = SidekiqJob.create do |doc|
+        doc.id = id
+        doc.status = :queued
+      end
       perform_async_without_uuid(*args)
-      id
+      document
     end
   end
 
@@ -36,12 +40,8 @@ module Sidekiq::Status::Worker
     @id=id
   end
 
-  # Stores multiple values into a job's status hash,
-  # sets last update time
-  # @param [Hash] status_updates updated values
-  # @return [String] Redis operation status code
-  def store(hash)
-    store_for_id(@id, hash)
+  def status_document
+    SidekiqJob.find(id)
   end
 
 end

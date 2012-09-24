@@ -1,8 +1,8 @@
 require "sidekiq-status/version"
 require 'sidekiq-status/storage'
 require 'sidekiq-status/worker'
-require 'sidekiq-status/client_middleware'
 require 'sidekiq-status/server_middleware'
+require 'sidekiq-status/documents/sidekiq_job'
 
 module Sidekiq
   module Status
@@ -14,7 +14,7 @@ module Sidekiq
     # @param [String] id job id returned by async_perform
     # @return [String] job status, possible values: "queued" , "working" , "complete"
     def self.get(id)
-      read_field_for_id(id, :status)
+      SidekiqJob.find(id)
     end
   end
 end

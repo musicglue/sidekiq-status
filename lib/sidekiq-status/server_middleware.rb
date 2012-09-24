@@ -20,27 +20,33 @@ module Sidekiq::Status
     # @param [Array] msg job args, first of them used as job id, should have uuid format
     # @param [String] queue queue name
     def call(worker, msg, queue)
-      if worker.is_a? Worker
+      if worker.class.ancestors.include? Sidekiq::Status::Worker
         worker.id = msg['args'].shift
         unless worker.id.is_a?(String) && UUID_REGEXP.match(worker.id)
           raise ArgumentError, "First job argument for a #{worker.class.name} should have uuid format"
         end
-        worker.store 'status' => 'working'
+        worker.update_status! 'working'
         yield
-        worker.store 'status' => 'complete'
+        worker.update_status! 'complete'
       else
         yield
       end
     rescue Worker::Stopped
-      worker.store 'status' => 'stopped'
-    rescue
-      if worker.is_a? Worker
-        worker.store 'status' => 'failed'
+      worker.update_status! 'stopped'
+    rescue => e
+      if worker.class.ancestors.include? Sidekiq::Status::Worker
+        worker.update_status! 'failed'
+        worker.update_message!({
+          exception: e.message,
+          backtrace: e.backtrace
+        })
         msg['args'].unshift worker.id
       end
       raise
     ensure
-      Sidekiq.redis { |conn| conn.expire worker.id, @expiration } if worker.is_a? Worker
+      if worker.class.ancestors.include? Sidekiq::Status::Worker
+        Sidekiq.redis { |conn| conn.expire worker.id, @expiration }
+      end
     end
   end
 end

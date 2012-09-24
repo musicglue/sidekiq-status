@@ -1,31 +1,37 @@
 module Sidekiq::Status::Storage
   RESERVED_FIELDS=%w(status stop update_time).freeze
 
-  protected
-
-  # Stores multiple values into a job's status hash,
-  # sets last update time
-  # @param [String] id job id
-  # @param [Hash] status_updates updated values
-  # @return [String] Redis operation status code
-  def store_for_id(id, status_updates)
-    Sidekiq.redis do |conn|
-      answers = conn.multi do
-        conn.hmset id, 'update_time', Time.now.to_i, *(status_updates.to_a.flatten)
-        conn.expire id, Sidekiq::Status::DEFAULT_EXPIRY
-        conn.publish "status_updates", id
-      end
-      answers[0]
-    end
+  def for_entity(entity)
+    job = SidekiqJob.find(@id)
+    return if job.nil?
+    job.set(entity_id: entity)
   end
 
-  # Gets a single valued from job status hash
-  # @param [String] id job id
-  # @param [String] Symbol field fetched field name
-  # @return [String] Redis operation status code
-  def read_field_for_id(uuid, field)
-    Sidekiq.redis do |conn|
-      conn.hmget(uuid, field)[0]
-    end
+  def update_message!(message)
+    message = { :text => message } if message.is_a? String
+    job = SidekiqJob.find(@id)
+    return if job.nil?
+    job.set(message: message)
+    update_timestamps!
   end
+
+  def update_status!(status)
+    job = SidekiqJob.find(@id)
+    return if job.nil?
+    job.set(status: status)
+    update_timestamps!
+  end
+
+  def job_document(uuid)
+    SidekiqJob.find(uuid)
+  end
+
+  private
+
+  def update_timestamps!
+    job = SidekiqJob.find(@id)
+    return if job.nil?
+    job.set(updated_at: Time.now)
+  end
+
 end
