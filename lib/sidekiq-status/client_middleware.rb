@@ -7,8 +7,10 @@ module Sidekiq::Status
     # @param [Array] msg job arguments, the firs one becomes the id
     # @param [String] queue the queue's name
     def call(worker_class, msg, queue)
-      if worker_class.include? Worker
-        SidekiqJob.find(_id: msg['args'][0], status: :queued)
+      if worker_class.ancestors.include? Sidekiq::Status::Worker
+        doc = SidekiqJob.find_or_create_by(_id: msg['args'][0])
+        doc.status = :queued
+        doc.save if doc.changed?
       end
       yield
     end

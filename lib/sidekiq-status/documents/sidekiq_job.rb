@@ -12,4 +12,25 @@ class SidekiqJob
 
   index :entity_id
 
+  def complete?
+    status == 'complete'
+  end
+
+  def failed?
+    status == 'failed'
+  end
+
+  def stoppped?
+    status == 'stopped'
+  end
+
+  def working?
+    status == 'working'
+  end
+
+  def queued?
+    status == 'queued'
+  end
+
+
 end

@@ -38,15 +38,16 @@ module Sidekiq::Status
         worker.update_status! 'failed'
         worker.update_message!({
           exception: e.message,
-          backtrace: e.backtrace,
-          })
+          backtrace: e.backtrace
+        })
         msg['args'].unshift worker.id
       end
       raise
     ensure
       if worker.class.ancestors.include? Sidekiq::Status::Worker
         Sidekiq.redis { |conn| conn.expire worker.id, @expiration }
-        Sidekiq::Status::RemoveTrackedJob.perform_in 1.minute, worker.id
+        #Remove in 30 days, ensures that retrying jobs maintain a status doc, if they're still around after 25 days they're failed
+        Sidekiq::Status::RemoveTrackedJob.perform_in 30.days, worker.id
       end
     end
   end

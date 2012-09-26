@@ -36,4 +36,8 @@ module Sidekiq::Status::Worker
     @id=id
   end
 
+  def status_document
+    SidekiqJob.find(id)
+  end
+
 end
