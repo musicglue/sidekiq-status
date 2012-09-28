@@ -18,7 +18,7 @@ module Sidekiq::Status::Worker
       id = SecureRandom.uuid
       args.unshift id
       perform_async_without_uuid(*args)
-      SidekiqJob.create(_id: id, status: :queued)
+      SidekiqJob.create(status: :queued)
     end
   end
 
