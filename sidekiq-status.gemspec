@@ -15,6 +15,6 @@ Gem::Specification.new do |gem|
   gem.version       = Sidekiq::Status::VERSION
 
   gem.add_dependency                  'sidekiq', '~> 2.2'
-  gem.add_dependency                  'mongoid', '~> 2.4.4'
+  gem.add_dependency                  'mongoid'
   gem.add_development_dependency      'rspec'
 end
