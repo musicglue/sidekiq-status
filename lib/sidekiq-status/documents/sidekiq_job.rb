@@ -29,5 +29,4 @@ class SidekiqJob
     status == 'queued'
   end
 
-
 end

@@ -17,8 +17,12 @@ module Sidekiq::Status::Worker
     def perform_async_with_uuid(*args)
       id = SecureRandom.uuid
       args.unshift id
+      document = SidekiqJob.create do |doc|
+        doc.id = id
+        doc.status = :queued
+      end
       perform_async_without_uuid(*args)
-      SidekiqJob.create(status: :queued)
+      document
     end
   end
 
