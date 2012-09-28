@@ -6,6 +6,7 @@ module Sidekiq::Status::Storage
   end
 
   def update_message!(message)
+    message = { :text => message } if message.is_a? String
     SidekiqJob.find(@id).set(:message, message)
     update_timestamps!
   end
