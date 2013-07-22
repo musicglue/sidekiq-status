@@ -9,6 +9,10 @@ class SidekiqJob
   field :message,     type: Hash
   field :updated_at,  type: Time, default: ->{ Time.now }
 
+  index entity_id: 1
+  index status: 1
+  index updated_at: 1
+
   def complete?
     status == 'complete'
   end
