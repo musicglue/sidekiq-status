@@ -46,8 +46,6 @@ module Sidekiq::Status
     ensure
       if worker.class.ancestors.include? Sidekiq::Status::Worker
         Sidekiq.redis { |conn| conn.expire worker.id, @expiration }
-        #Remove in 30 days, ensures that retrying jobs maintain a status doc, if they're still around after 25 days they're failed
-        Sidekiq::Status::RemoveTrackedJob.perform_in 30.days, worker.id
       end
     end
   end
