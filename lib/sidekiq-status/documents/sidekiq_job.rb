@@ -2,12 +2,12 @@ require 'mongoid'
 
 class SidekiqJob
   include Mongoid::Document
+  include Mongoid::Timestamps
 
   field :_id,         type: String
   field :entity_id,   type: String
   field :status,      type: String
   field :message,     type: Hash
-  field :updated_at,  type: Time, default: ->{ Time.now }
 
   def complete?
     status == 'complete'
