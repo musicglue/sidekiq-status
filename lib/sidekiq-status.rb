@@ -1,7 +1,6 @@
 require "sidekiq-status/version"
 require 'sidekiq-status/storage'
 require 'sidekiq-status/worker'
-require 'sidekiq-status/client_middleware'
 require 'sidekiq-status/server_middleware'
 require 'sidekiq-status/documents/sidekiq_job'
 
