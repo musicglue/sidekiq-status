@@ -9,6 +9,10 @@ class SidekiqJob
   field :status,      type: String
   field :message,     type: Hash
 
+  index entity_id: 1
+  index status: 1
+  index updated_at: 1
+
   def complete?
     status == 'complete'
   end
